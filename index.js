@@ -57,7 +57,7 @@ app.post('/api/users', (req, res) => {
     } else {
       res.send({
         username: data.username,
-        id: data._id
+        _id: data._id
       });
     }
   })
@@ -75,6 +75,12 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
   const duration = req.body.duration;
   const date = (req.body.date) ? new Date(req.body.date) : new Date();
 
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    res.send({
+      "error": "invalid id type"
+    });
+    return;
+  }
 
   const user = await User.findById(id, (err, data) => {
     if (err) {
@@ -106,6 +112,13 @@ app.get('/api/users/:_id/logs', async (req, res) => {
   const fromDate = (req.query.from) ? new Date(req.query.from) : 0;
   const toDate = (req.query.to) ? new Date(req.query.to) : new Date();
   const numLimit = Number.parseInt(req.query.limit);
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    res.send({
+      "error": "invalid id type"
+    });
+    return;
+  }
 
   const user = await User.findById(id, (err, data) => data);
   let exercises = await Exercise.find({user_id: user._id, date: { $gte : fromDate}, date: {$lte : toDate}},{_id: 0, user_id: 0, __v: 0} , (err, data) => data).limit(numLimit);
