@@ -52,7 +52,7 @@ app.post('/api/users', (req, res) => {
       const newData = await createAndSaveUser(req.body.username);
       res.send({
         username: newData.username,
-        id: newData._id
+        _id: newData._id
       })
     } else {
       res.send({
@@ -123,6 +123,12 @@ app.get('/api/users/:_id/logs', async (req, res) => {
   const user = await User.findById(id, (err, data) => data);
   let exercises = await Exercise.find({user_id: user._id, date: { $gte : fromDate}, date: {$lte : toDate}},{_id: 0, user_id: 0, __v: 0} , (err, data) => data).limit(numLimit);
 
+  exercises = exercises.map(obj => {
+    obj = obj.toObject();
+    obj.date = obj.date.toDateString();
+    return obj;
+  })
+  
   res.send({
     username: user.username,
     count: exercises.length,
